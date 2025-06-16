@@ -2,7 +2,7 @@ import OpenAI from 'openai'
 
 const openai = new OpenAI({
   baseURL: 'https://api.deepseek.com',
-  apiKey: process.env.VITE_DEEPSEEK_API_KEY,
+  apiKey: process.env.DEEPSEEK_API_KEY,
 })
 
 export async function POST(request: Request) {
