@@ -5,16 +5,16 @@ const openai = new OpenAI({
   apiKey: process.env.VITE_DEEPSEEK_API_KEY,
 })
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
-
+export async function POST(request: Request) {
   try {
-    const { userInput } = req.body
+    const body = await request.json()
+    const { userInput } = body
 
     if (!userInput) {
-      return res.status(400).json({ error: 'User input is required' })
+      return new Response(JSON.stringify({ error: 'User input is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
     }
 
     const completion = await openai.chat.completions.create({
@@ -35,13 +35,15 @@ export default async function handler(req, res) {
       .map((t) => t.trim())
       .filter((t) => t.length > 0)
 
-    return res.status(200).json({ tasks })
+    return new Response(JSON.stringify({ tasks }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
   } catch (error) {
     console.error('Error in suggest-tasks API:', error)
-    const errorMessage =
-      process.env.NODE_ENV === 'development'
-        ? `Error: ${error instanceof Error ? error.message : 'Unknown error'}`
-        : 'Internal server error'
-    return res.status(500).json({ error: errorMessage })
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    )
   }
 }
